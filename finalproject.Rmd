@@ -1,0 +1,104 @@
+---
+title: "APMA_3150_FP"
+names: ""
+output: html_document
+date: "2025-07-12"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r csv}
+
+library(readr)
+library(dplyr)
+
+life_exp <- read_csv("https://raw.githubusercontent.com/rishikadeshmukh/APMA3150_Final/refs/heads/main/lifeexpect_year.csv")
+income <- read_csv("https://raw.githubusercontent.com/rishikadeshmukh/APMA3150_Final/refs/heads/main/income_year.csv")
+health_expen <- read_csv("https://raw.githubusercontent.com/rishikadeshmukh/APMA3150_Final/refs/heads/main/expenditurepercapita_year.csv")
+
+colnames(life_exp) <- c("Year", "LifeExpectancy")
+colnames(income) <- c("Year", "Income")
+colnames(health_expen) <- c("Year", "HealthExpenditurePerCapita")
+
+life_exp
+income
+health_expen
+
+```
+
+
+
+```{r}
+
+merged_data <- full_join(life_exp, income, by = "Year")
+merged_data <- full_join(merged_data, health_expen, by = "Year")
+
+merged_data
+
+```
+
+```{r hypothesis test}
+
+cor.test(merged_data$LifeExpectancy, merged_data$Income)
+cor.test(merged_data$LifeExpectancy, merged_data$HealthExpenditurePerCapita)
+cor.test(merged_data$Income, merged_data$HealthExpenditurePerCapita)
+
+
+```
+```{r linearmodel}
+lm_model <- lm(LifeExpectancy ~ Income + HealthExpenditurePerCapita, data = merged_data)
+summary(lm_model)
+```
+```{r}
+library(ggplot2)
+
+ggplot(merged_data, aes(x = Income, y = LifeExpectancy)) +
+  geom_point(color = "steelblue", size = 3) +
+  geom_smooth(method = "lm", se = TRUE, color = "darkred", linetype = "dashed") +
+  labs(
+    title = "Linear Regression: Life Expectancy vs Income",
+    x = "Real Median Income (USD)",
+    y = "Life Expectancy (Years)"
+  ) +
+  coord_cartesian(ylim = c(70, 85)) +
+  theme_minimal()
+```
+```{r}
+ggplot(merged_data, aes(x = HealthExpenditurePerCapita, y = LifeExpectancy)) +
+  geom_point(color = "darkgreen", size = 3) +
+  geom_smooth(method = "lm", se = TRUE, color = "purple", linetype = "dashed") +
+  labs(
+    title = "Linear Regression: Life Expectancy vs Health Expenditure",
+    x = "Health Expenditure per Capita (USD)",
+    y = "Life Expectancy (Years)"
+  ) +
+  coord_cartesian(ylim = c(70, 85))+
+  theme_minimal()
+```
+```{r}
+ggplot(merged_data, aes(x = Income, y = HealthExpenditurePerCapita)) +
+  geom_point(color = "orange", size = 3) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue", linetype = "dashed") +
+  labs(
+    title = "Linear Regression: Health Expenditure vs Income",
+    x = "Real Median Income (USD)",
+    y = "Health Expenditure per Capita (USD)"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+
+lm_model <- lm(LifeExpectancy ~ Income + HealthExpenditurePerCapita, data = merged_data)
+summary(lm_model)
+```
+
